@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // URL 접근 제어
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/signIn").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/signUp").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/signOut").permitAll()
