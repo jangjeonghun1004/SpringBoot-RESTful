@@ -67,7 +67,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 허용
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // 허용할 도메인 (프론트엔드 도메인)
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:8080", "https://jangjeonghun1004.github.io/")); // 허용할 도메인 (프론트엔드 도메인)
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
         configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type")); // 허용할 헤더
 
