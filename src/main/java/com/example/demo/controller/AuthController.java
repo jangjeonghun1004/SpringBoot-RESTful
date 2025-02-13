@@ -15,10 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -94,7 +91,7 @@ public class AuthController {
      * @param request 클라이언트의 HTTP 요청
      * @return 로그아웃 성공/실패 여부 응답
      */
-    @PostMapping("/signOut")
+    @GetMapping("/signOut")
     public ResponseEntity<ApiResult<Object>> signOut(HttpServletRequest request) {
         // 요청에서 토큰 추출 후 유효성 검증
         Optional<String> tokenOptional = jwtProvider.extractToken(request)

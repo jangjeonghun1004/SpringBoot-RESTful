@@ -87,12 +87,12 @@ public class ToDoController {
      * @return 성공 메시지 응답
      */
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResult<Object>> deleteToDo(@PathVariable Long id) {
+    public ResponseEntity<ApiResult<Long>> deleteToDo(@PathVariable Long id) {
         this.toDoService.deleteToDo(id);
         return ResponseEntity.ok(new ApiResult<>(
                 true,
                 MessageProvider.getMessage("common.success"),
-                new Object() // null 반환 방지
+                id
         ));
     }
 }
