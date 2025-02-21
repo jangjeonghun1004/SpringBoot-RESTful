@@ -1,8 +1,9 @@
 package com.example.demo.dto.sign.up;
 
-import com.example.demo.entity.User;
+import com.example.demo.entity.Member;
 import com.example.demo.validator.ValidEmail;
 import com.example.demo.validator.ValidPassword;
+import com.example.demo.validator.ValidRoles;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,8 +15,6 @@ public class SignUpRequest {
     @ValidEmail
     private String email;
 
-    @ValidPassword()
+    @ValidPassword
     private String password;
-
-    private Set<User.UserRole> roles = Set.of(User.UserRole.ROLE_USER);
 }

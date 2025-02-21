@@ -10,9 +10,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+public class MemberAccessDeniedHandler implements AccessDeniedHandler {
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response,
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden: 접근 권한이 없습니다.");
     }

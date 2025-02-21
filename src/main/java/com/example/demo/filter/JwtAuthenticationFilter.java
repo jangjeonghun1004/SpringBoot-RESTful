@@ -1,10 +1,10 @@
 package com.example.demo.filter;
 
 import com.example.demo.dto.ApiResult;
-import com.example.demo.entity.User;
+import com.example.demo.entity.Member;
 import com.example.demo.provider.JwtProvider;
 import com.example.demo.provider.TokenBlacklist;
-import com.example.demo.service.UserService;
+import com.example.demo.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,12 +25,12 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
-    private final UserService userService;
+    private final MemberService memberService;
     private final TokenBlacklist tokenBlacklist;
 
-    public JwtAuthenticationFilter(JwtProvider jwtProvider, UserService userService, TokenBlacklist tokenBlacklist) {
+    public JwtAuthenticationFilter(JwtProvider jwtProvider, MemberService memberService, TokenBlacklist tokenBlacklist) {
         this.jwtProvider = jwtProvider;
-        this.userService = userService;
+        this.memberService = memberService;
         this.tokenBlacklist = tokenBlacklist;
     }
 
@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 사용자 이메일 추출 후 데이터베이스 조회
             String email = jwtProvider.extractUsername(token);
-            Optional<User> userOptional = userService.findByEmail(email);
+            Optional<Member> userOptional = memberService.findMemberByEmail(email);
 
             if (userOptional.isEmpty()) {
                 log.warn("User not found for email: {}", email);
@@ -78,7 +78,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // Spring Security에 사용자 인증 정보 설정
             setAuthentication(userOptional.get());
-
             filterChain.doFilter(request, response);
         } catch (Exception ex) {
             log.error("Authentication error", ex);
@@ -89,14 +88,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * Spring Security에 인증 정보 설정
      *
-     * @param user 인증할 사용자 객체
+     * @param member 인증할 사용자 객체
      */
-    private void setAuthentication(User user) {
+    private void setAuthentication(Member member) {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                user, null, user.getAuthorities()
+                member,
+                null,
+                member.getAuthorities()
         );
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.info("User authenticated: {}", user.getEmail());
+        log.info("User authenticated: {}", member.getEmail());
     }
 
     /**

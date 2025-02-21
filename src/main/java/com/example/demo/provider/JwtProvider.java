@@ -27,8 +27,10 @@ public class JwtProvider {
      * @param secret           JWT 서명을 위한 비밀 키
      * @param expirationMillis JWT 만료 시간 (밀리초 단위)
      */
-    public JwtProvider(@Value("${jwt.secret}") String secret,
-                       @Value("${jwt.expirationMillis}") long expirationMillis) {
+    public JwtProvider(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expirationMillis}") long expirationMillis
+    ) {
         if (secret.length() < 32) {  // 최소 256비트(32바이트) 보장
             throw new IllegalArgumentException("JWT Secret Key는 최소 32바이트 이상이어야 합니다.");
         }

@@ -10,9 +10,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class MemberAuthenticationEntryPoint implements AuthenticationEntryPoint {
   @Override
-  public void commence(HttpServletRequest request, HttpServletResponse response,
+  public void commence(HttpServletRequest request,
+                       HttpServletResponse response,
                        AuthenticationException authException) throws IOException, ServletException {
     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: 인증이 필요합니다.");
   }
