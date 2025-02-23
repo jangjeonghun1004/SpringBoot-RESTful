@@ -54,7 +54,7 @@ public class PostController {
      * @return 게시글 페이지와 HTTP 200 응답
      */
     @GetMapping
-    public ResponseEntity<ApiResult<PostDtoWithPaging>> getAllPosts(
+    public ResponseEntity<ApiResult<PostDtoWithPaging>> findAllPosts(
             @RequestParam(defaultValue = "0") int pageNumber) {
 
         Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE, DEFAULT_SORT);

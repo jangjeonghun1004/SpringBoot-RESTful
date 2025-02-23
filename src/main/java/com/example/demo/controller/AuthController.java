@@ -6,6 +6,7 @@ import com.example.demo.dto.sign.in.SignInRequest;
 import com.example.demo.dto.sign.in.SignInResponse;
 import com.example.demo.dto.sign.up.SignUpRequest;
 import com.example.demo.dto.sign.up.SignUpResponse;
+import com.example.demo.exception.MemberAlreadyExistsException;
 import com.example.demo.provider.JwtProvider;
 import com.example.demo.provider.MessageProvider;
 import com.example.demo.provider.TokenBlacklist;
@@ -68,11 +69,19 @@ public class AuthController {
      */
     @PostMapping("/signUp")
     public ResponseEntity<ApiResult<SignUpResponse>> signUp(@RequestBody @Valid SignUpRequest signUpRequest) {
+        // 1. 중복 이메일 체크 (이미 존재하는 경우)
+        if (memberService.existsMemberByEmail(signUpRequest.getEmail())) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResult.failure("이미 존재하는 이메일입니다: " + signUpRequest.getEmail()));
+        }
+
+        // 2. 회원 가입
         MemberResponse user = memberService.saveMember(signUpRequest);
         SignUpResponse response = SignUpResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .build();
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResult.success(response));
     }

@@ -36,7 +36,7 @@ public class ToDoController {
      * @return 할 일 리스트 응답
      */
     @GetMapping
-    public ResponseEntity<ApiResult<List<ToDoDto>>> fetch() {
+    public ResponseEntity<ApiResult<List<ToDoDto>>> findAllTodos() {
         List<ToDoDto> toDoList = toDoService.findAllTodos();
         return ResponseEntity.ok(ApiResult.success(toDoList));
     }
@@ -49,46 +49,46 @@ public class ToDoController {
      * @return 저장된 할 일 정보
      */
     @PostMapping
-    public ResponseEntity<ApiResult<ToDoDto>> save(@RequestBody @Valid ToDoCreateRequest request) {
+    public ResponseEntity<ApiResult<ToDoDto>> createTodo(@RequestBody @Valid ToDoCreateRequest request) {
         ToDoDto savedToDo = toDoService.createTodo(request.getTitle());
         return ResponseEntity.ok(ApiResult.success(savedToDo));
     }
 
     /**
      * 할 일 제목 수정 API
-     * URL: PATCH /api/todo/updateTitle
+     * URL: PATCH /api/todo/updateTodoTitle
      *
      * @param request 할 일 제목 수정 요청 데이터 (id, title)
      * @return 변경된 할 일 정보
      */
-    @PatchMapping("/updateTitle")
-    public ResponseEntity<ApiResult<ToDoDto>> updateTitle(@RequestBody @Valid UpdateToDoTitleRequest request) {
+    @PatchMapping("/updateTodoTitle")
+    public ResponseEntity<ApiResult<ToDoDto>> updateTodoTitle(@RequestBody @Valid UpdateToDoTitleRequest request) {
         ToDoDto updatedToDo = toDoService.updateTodoTitle(request.getId(), request.getTitle());
         return ResponseEntity.ok(ApiResult.success(updatedToDo));
     }
 
     /**
      * 할 일 완료 상태 변경 API
-     * URL: PATCH /api/todo/updateCompleted
+     * URL: PATCH /api/todo/updateTodoCompleted
      *
      * @param request 할 일 완료 상태 변경 요청 데이터 (id, completed)
      * @return 변경된 할 일 정보
      */
-    @PatchMapping("/updateCompleted")
-    public ResponseEntity<ApiResult<ToDoDto>> updateCompleted(@RequestBody @Valid UpdateToDoCompletedRequest request) {
+    @PatchMapping("/updateTodoCompleted")
+    public ResponseEntity<ApiResult<ToDoDto>> updateTodoCompleted(@RequestBody @Valid UpdateToDoCompletedRequest request) {
         ToDoDto updatedToDo = toDoService.updateTodoCompleted(request.getId(), request.getCompleted());
         return ResponseEntity.ok(ApiResult.success(updatedToDo));
     }
 
     /**
      * 할 일 삭제 API
-     * URL: DELETE /api/todo/delete/{id}
+     * URL: DELETE /api/todo/deleteTodo/{id}
      *
      * @param id 삭제할 할 일 ID (양수여야 함)
      * @return 삭제된 할 일 ID를 포함한 응답
      */
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResult<Long>> delete(@PathVariable @Positive(message = "{common.validation.positive}") Long id) {
+    @DeleteMapping("/deleteTodo/{id}")
+    public ResponseEntity<ApiResult<Long>> deleteTodo(@PathVariable @Positive(message = "id: {common.validation.positive}") Long id) {
         toDoService.deleteTodo(id);
         return ResponseEntity.ok(ApiResult.success(id));
     }

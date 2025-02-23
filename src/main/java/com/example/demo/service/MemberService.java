@@ -13,6 +13,14 @@ import java.util.Optional;
  */
 public interface MemberService {
 
+    /***
+     * 중복 이메일 여부를 체크합니다.
+     *
+     * @param email 회원 이메일
+     * @return 중복 여부(boolean)
+     */
+    boolean existsMemberByEmail(String email);
+
     /**
      * 이메일을 기준으로 회원 정보를 조회합니다.
      *

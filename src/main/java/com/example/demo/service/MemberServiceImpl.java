@@ -25,6 +25,12 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;  // 사용자 저장소 (JPA Repository)
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 PasswordEncoder
 
+
+    @Override
+    public boolean existsMemberByEmail(String email) {
+        return this.memberRepository.existsMemberByEmail(email);
+    }
+
     /**
      * 이메일을 기반으로 사용자 엔티티(User)를 조회한다.
      *
@@ -50,12 +56,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional  // 데이터 일관성을 위해 트랜잭션 처리
     public MemberResponse saveMember(SignUpRequest signUpRequest) {
-        // 1. 중복 이메일 체크 (이미 존재하는 경우 예외 발생)
-        if (this.memberRepository.existsMemberByEmail(signUpRequest.getEmail())) {
-            throw new MemberAlreadyExistsException("이미 존재하는 이메일입니다: " + signUpRequest.getEmail());
-        }
-
-        // 2. 사용자 객체 생성 및 비밀번호 암호화 후 저장
+        // 1. 사용자 객체 생성 및 비밀번호 암호화 후 저장
         Member savedMember = this.memberRepository.save(
                 Member.builder()
                         .email(signUpRequest.getEmail())
@@ -66,7 +67,7 @@ public class MemberServiceImpl implements MemberService {
                         .build()
         );
 
-        // 3. 저장된 사용자 정보를 UserDTO 객체로 변환하여 반환
+        // 2. 저장된 사용자 정보를 UserDTO 객체로 변환하여 반환
         return MemberResponse.builder()
                 .id(savedMember.getId())
                 .email(savedMember.getEmail()).build();

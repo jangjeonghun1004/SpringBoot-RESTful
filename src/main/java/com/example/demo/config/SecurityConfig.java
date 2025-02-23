@@ -19,6 +19,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * 보안 설정 REST API 컨트롤러
+ * <p>
+ * JWT 기반 인증, CORS 설정, 세션 정책 등을 구성하여 애플리케이션의 보안을 강화합니다.
+ * <p>
+ * 적용 URL:
+ * <ul>
+ *   <li>POST /api/auth/signIn : 인증 없이 로그인 요청 허용</li>
+ *   <li>POST /api/auth/signUp : 인증 없이 회원가입 요청 허용</li>
+ *   <li>GET /api/auth/signOut : 인증 없이 로그아웃 요청 허용</li>
+ *   <li>그 외의 모든 요청 : 인증 필요</li>
+ * </ul>
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -28,6 +41,19 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
 
+    /**
+     * SecurityFilterChain 빈 생성
+     * <p>
+     * URL 적용 내역:
+     * <ul>
+     *   <li>POST /api/auth/signIn, POST /api/auth/signUp, GET /api/auth/signOut : permitAll()</li>
+     *   <li>나머지 모든 요청 : 인증 필요</li>
+     * </ul>
+     *
+     * @param http HttpSecurity 객체
+     * @return 구성된 SecurityFilterChain 빈
+     * @throws Exception 보안 설정 구성 중 예외 발생 시
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -35,43 +61,51 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 // CSRF 보호 비활성화 (JWT 인증 사용 시 일반적으로 비활성화)
                 .csrf(AbstractHttpConfigurer::disable)
-                // CORS 설정 적용 (Bean에서 설정한 corsConfigurationSource 사용)
+                // CORS 설정 적용 (corsConfigurationSource 빈 사용)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // 세션을 사용하지 않음 (JWT 기반 인증이므로 STATELESS 정책 적용)
+                // 세션을 사용하지 않음 (STATELESS 정책 적용)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // URL 접근 제어
+                // URL 접근 제어 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/signIn").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/signUp").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/signOut").permitAll()
-                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
+                        .anyRequest().authenticated()
                 )
-                // JWT 필터를 UsernamePasswordAuthenticationFilter 전에 실행
+                // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 전에 추가
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 // 예외 처리 설정
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(authenticationEntryPoint) // 인증 실패 시 핸들러
-                        .accessDeniedHandler(accessDeniedHandler) // 권한 부족 시 핸들러
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
                 );
 
         return http.build();
     }
 
     /**
-     * CORS 정책을 설정하는 Bean
-     * - 허용할 Origin, HTTP Method, Header 설정
-     * - Credentials(쿠키, 인증 정보) 허용 여부 지정
+     * CORS 정책을 설정하는 빈
+     * <p>
+     * 적용 URL: 모든 경로 (/**)
+     * <p>
+     * 허용할 Origin, HTTP 메서드, Header 및 자격 증명(Credentials) 설정
+     *
+     * @return 구성된 CorsConfigurationSource 빈
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true); // 쿠키 및 인증 정보 허용
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:8080", "https://jangjeonghun1004.github.io")); // 허용할 도메인 (프론트엔드 도메인)
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://localhost:8080",
+                "https://jangjeonghun1004.github.io"
+        )); // 허용할 프론트엔드 도메인
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // 허용할 HTTP 메서드
-        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type")); // 허용할 헤더
+        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type")); // 허용할 Header
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 적용
+        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 설정 적용
         return source;
     }
 }
