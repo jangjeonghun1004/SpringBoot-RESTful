@@ -4,6 +4,7 @@ import com.example.demo.dto.ApiResult;
 import com.example.demo.dto.post.PostDto;
 import com.example.demo.dto.post.PostDtoWithPaging;
 import com.example.demo.dto.post.PostRequest;
+import com.example.demo.service.PostCommentService;
 import com.example.demo.service.PostService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -27,10 +28,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PostController {
 
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 2;
     private static final Sort DEFAULT_SORT = Sort.by("createdAt").descending();
 
     private final PostService postService;
+    private final PostCommentService postCommentService;
 
     /**
      * 새로운 게시글 생성 API.
@@ -54,9 +56,7 @@ public class PostController {
      * @return 게시글 페이지와 HTTP 200 응답
      */
     @GetMapping
-    public ResponseEntity<ApiResult<PostDtoWithPaging>> findAllPosts(
-            @RequestParam(defaultValue = "0") int pageNumber) {
-
+    public ResponseEntity<ApiResult<PostDtoWithPaging>> findAllPosts(@RequestParam(defaultValue = "0") int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, PAGE_SIZE, DEFAULT_SORT);
         Page<PostDto> postsPage = postService.findAllPosts(pageable);
         PostDtoWithPaging result = buildPostDtoWithPaging(postsPage);
@@ -120,9 +120,10 @@ public class PostController {
      * @return HTTP 204 (No Content) 응답
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(
-            @PathVariable @Positive(message = "{common.validation.positive}") Long id) {
-        postService.deletePost(id);
+    public ResponseEntity<Void> deletePost(@PathVariable @Positive(message = "{common.validation.positive}") Long id) {
+
+        this.postService.deletePost(id);
+        this.postCommentService.deleteAllPostComments(id);
         return ResponseEntity.noContent().build();
     }
 

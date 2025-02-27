@@ -169,6 +169,13 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(message, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(StandardException.class)
+    public ResponseEntity<ApiResult<Void>> handleStandardException(StandardException ex) {
+        String message = ex.getMessage();
+        logger.error("Standard exception: {}", message, ex);
+        return buildErrorResponse(message, HttpStatus.I_AM_A_TEAPOT);
+    }
+
     /**
      * 기타 모든 예외 처리 (Generic Exception)
      * <p>
@@ -181,6 +188,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResult<Void>> handleGenericException(Exception ex) {
         logger.error("An unexpected error occurred: ", ex);
         String message = "An unexpected error occurred. Please contact support if the problem persists.";
-        return buildErrorResponse(message, HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

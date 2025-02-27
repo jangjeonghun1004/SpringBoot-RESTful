@@ -3,7 +3,7 @@ package com.example.demo.filter;
 import com.example.demo.dto.ApiResult;
 import com.example.demo.entity.Member;
 import com.example.demo.provider.JwtProvider;
-import com.example.demo.provider.TokenBlacklist;
+import com.example.demo.provider.TokenBlacklistProvider;
 import com.example.demo.service.MemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -37,19 +37,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final MemberService memberService;
-    private final TokenBlacklist tokenBlacklist;
+    private final TokenBlacklistProvider tokenBlacklistProvider;
 
     /**
      * 생성자 - JwtProvider, MemberService, TokenBlacklist를 주입받습니다.
      *
      * @param jwtProvider    JWT 토큰 관련 기능 제공
      * @param memberService  회원 정보 조회 서비스
-     * @param tokenBlacklist 블랙리스트 토큰 관리 서비스
+     * @param tokenBlacklistProvider 블랙리스트 토큰 관리 서비스
      */
-    public JwtAuthenticationFilter(JwtProvider jwtProvider, MemberService memberService, TokenBlacklist tokenBlacklist) {
+    public JwtAuthenticationFilter(JwtProvider jwtProvider, MemberService memberService, TokenBlacklistProvider tokenBlacklistProvider) {
         this.jwtProvider = jwtProvider;
         this.memberService = memberService;
-        this.tokenBlacklist = tokenBlacklist;
+        this.tokenBlacklistProvider = tokenBlacklistProvider;
     }
 
     /**
@@ -78,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String token = tokenOptional.get();
-            if (tokenBlacklist.isBlacklisted(token)) {
+            if (tokenBlacklistProvider.isBlacklisted(token)) {
                 log.warn("Attempted use of blacklisted token: {}", token);
                 handleException(response, "Token is blacklisted", HttpStatus.UNAUTHORIZED);
                 return;

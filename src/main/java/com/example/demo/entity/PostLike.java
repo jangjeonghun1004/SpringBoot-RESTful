@@ -13,9 +13,7 @@ import java.time.LocalDateTime;
  * - 특정 회원이 특정 게시글에 좋아요를 눌렀을 때 저장됩니다.
  */
 @Entity
-@Table(name = "post_likes", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"post_id", "member_id"})
-})
+@Table(name = "post_likes", uniqueConstraints = {@UniqueConstraint(columnNames = {"post_id", "member_id"})})
 @Getter
 @ToString(exclude = "post")
 @EqualsAndHashCode(of = "id")

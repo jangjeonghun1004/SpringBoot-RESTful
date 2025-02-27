@@ -6,15 +6,13 @@ import com.example.demo.entity.Member;
 import com.example.demo.entity.Post;
 import com.example.demo.entity.PostLike;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.StandardException;
 import com.example.demo.provider.MessageProvider;
-import com.example.demo.repository.MemberRepository;
 import com.example.demo.repository.PostLikeRepository;
 import com.example.demo.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +31,8 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
-    private final MemberRepository memberRepository;
+    private final AuthenticationFacade authenticationFacade;
+    private final PostCommentService postCommentService;
 
     /**
      * 새로운 게시글을 생성합니다.
@@ -43,7 +42,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public PostDto createPost(final PostRequest postRequest) {
-        Member currentMember = getCurrentMember();
+        Member currentMember = this.authenticationFacade.getCurrentMember();
         // 게시글 저장 및 영속화
         Post savedPost = postRepository.save(
                 Post.builder()
@@ -123,7 +122,12 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         MessageProvider.getMessage("common.validation.resourceNotFoundException") + " id: " + id));
-        postRepository.delete(post);
+
+        if(!post.getMember().getId().equals(this.authenticationFacade.getCurrentMemberId())) {
+            throw new StandardException(MessageProvider.getMessage("common.validation.doNotHavePermission"));
+        }
+
+        this.postRepository.delete(post);
     }
 
     /**
@@ -140,7 +144,7 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         MessageProvider.getMessage("common.validation.resourceNotFoundException") + " id: " + id));
 
-        Long currentMemberId = getCurrentMemberId();
+        Long currentMemberId = this.authenticationFacade.getCurrentMemberId();
         Optional<PostLike> optionalPostLike = postLikeRepository.findPostLikeByPostIdAndMemberId(id, currentMemberId);
 
         if (optionalPostLike.isPresent()) {
@@ -160,38 +164,15 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
-     * 현재 인증된 사용자의 Member 엔티티를 반환하는 헬퍼 메서드.
-     *
-     * @return 현재 인증된 Member
-     * @throws IllegalStateException 인증 정보가 없거나 사용자를 찾을 수 없을 경우 예외 발생
-     */
-    private Member getCurrentMember() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalStateException(MessageProvider.getMessage("common.validation.noAuthenticated"));
-        }
-        return memberRepository.findMemberByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        MessageProvider.getMessage("common.validation.resourceNotFoundException") + " email: " + authentication.getName()));
-    }
-
-    /**
-     * 현재 인증된 사용자의 ID를 반환합니다.
-     *
-     * @return 현재 사용자의 ID
-     */
-    private Long getCurrentMemberId() {
-        return getCurrentMember().getId();
-    }
-
-    /**
      * Post 엔티티를 PostDto로 변환하는 헬퍼 메서드.
      *
      * @param post 변환할 Post 엔티티
      * @return 변환된 PostDto
      */
     private PostDto convertToPostDto(final Post post) {
-        boolean likedByUser = postLikeRepository.existsByPostIdAndMemberId(post.getId(), getCurrentMemberId());
+        boolean likedByUser = postLikeRepository.existsByPostIdAndMemberId(post.getId(), this.authenticationFacade.getCurrentMemberId());
+        boolean isEnabledDelete = post.getMember().getId().equals(this.authenticationFacade.getCurrentMemberId());
+
         return PostDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -200,6 +181,10 @@ public class PostServiceImpl implements PostService {
                 .updatedAt(post.getUpdatedAt())
                 .likeCount(post.getLikeCount().get())
                 .likedByUser(likedByUser)
+                .postComments(this.postCommentService.findAllPostComments(post.getId()))
+                .isEnabledDelete(isEnabledDelete)
                 .build();
     }
+
+
 }

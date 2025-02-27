@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 게시글 응답 DTO.
@@ -18,7 +19,9 @@ public class PostDto {
     private String title;
     private String content;
     private int likeCount;       // 전체 좋아요 수
-    private boolean likedByUser; // 현재 사용자가 좋아요한 상태 (true: 좋아요 누른 상태, false: 좋아요 안 누른 상태)
+    private Boolean likedByUser; // 현재 사용자가 좋아요한 상태 (true: 좋아요 누른 상태, false: 좋아요 안 누른 상태)
+    private List<PostCommentDto> postComments;
+    private Boolean isEnabledDelete;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

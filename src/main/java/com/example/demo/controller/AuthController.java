@@ -6,10 +6,9 @@ import com.example.demo.dto.sign.in.SignInRequest;
 import com.example.demo.dto.sign.in.SignInResponse;
 import com.example.demo.dto.sign.up.SignUpRequest;
 import com.example.demo.dto.sign.up.SignUpResponse;
-import com.example.demo.exception.MemberAlreadyExistsException;
 import com.example.demo.provider.JwtProvider;
 import com.example.demo.provider.MessageProvider;
-import com.example.demo.provider.TokenBlacklist;
+import com.example.demo.provider.TokenBlacklistProvider;
 import com.example.demo.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -33,7 +32,7 @@ public class AuthController {
 
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
-    private final TokenBlacklist tokenBlacklist;
+    private final TokenBlacklistProvider tokenBlacklistProvider;
 
     /**
      * 사용자 로그인 API (JWT 발급)
@@ -99,7 +98,7 @@ public class AuthController {
     public ResponseEntity<ApiResult<Object>> signOut(HttpServletRequest request) {
         return extractValidToken(request)
                 .map(token -> {
-                    tokenBlacklist.addToBlacklist(token);
+                    tokenBlacklistProvider.addToBlacklist(token);
                     return ResponseEntity.ok(ApiResult.success(null, MessageProvider.getMessage("auth.logout.success")));
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
