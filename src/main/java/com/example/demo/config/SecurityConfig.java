@@ -70,6 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/signIn").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/signUp").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/signOut").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/post").permitAll()
                         .anyRequest().authenticated()
                 )
                 // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 전에 추가

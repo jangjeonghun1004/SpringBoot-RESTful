@@ -171,7 +171,7 @@ public class PostServiceImpl implements PostService {
      */
     private PostDto convertToPostDto(final Post post) {
         boolean likedByUser = postLikeRepository.existsByPostIdAndMemberId(post.getId(), this.authenticationFacade.getCurrentMemberId());
-        boolean isEnabledDelete = post.getMember().getId().equals(this.authenticationFacade.getCurrentMemberId());
+        boolean isEnabledDelete = this.authenticationFacade.getCurrentMemberId().equals(post.getMember().getId());
 
         return PostDto.builder()
                 .id(post.getId())

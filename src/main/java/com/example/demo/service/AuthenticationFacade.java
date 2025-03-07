@@ -18,7 +18,7 @@ public interface AuthenticationFacade {
     /**
      * 현재 인증된 사용자의 ID를 반환합니다.
      *
-     * @return 현재 사용자의 ID
+     * @return 현재 사용자의 ID 또는 0
      */
     Long getCurrentMemberId();
 }

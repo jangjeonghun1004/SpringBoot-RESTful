@@ -114,6 +114,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private boolean shouldSkipTokenValidation(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
+        String method = request.getMethod();
+
+        // GET /api/post의 경우, Authorization 헤더가 없으면 인증 검증을 건너뜁니다.
+        if (requestURI.equals("/api/post") && method.equalsIgnoreCase("GET")) {
+            return request.getHeader("Authorization") == null;
+        }
+
+        // signIn 및 signOut 요청은 인증 검증을 건너뜁니다.
         return requestURI.equals("/api/auth/signIn") || requestURI.equals("/api/auth/signOut");
     }
 

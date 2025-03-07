@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PostController {
 
-    private static final int PAGE_SIZE = 2;
+    private static final int PAGE_SIZE = 10;
     private static final Sort DEFAULT_SORT = Sort.by("createdAt").descending();
 
     private final PostService postService;
@@ -120,11 +120,10 @@ public class PostController {
      * @return HTTP 204 (No Content) 응답
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable @Positive(message = "{common.validation.positive}") Long id) {
-
+    public ResponseEntity<ApiResult<Long>> deletePost(@PathVariable @Positive(message = "{common.validation.positive}") Long id) {
         this.postService.deletePost(id);
         this.postCommentService.deleteAllPostComments(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResult.success(id));
     }
 
     /**

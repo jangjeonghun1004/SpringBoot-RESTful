@@ -26,8 +26,8 @@ public class PostCommentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePostComment(@PathVariable @Positive(message = "{common.validation.positive}") Long id) {
+    public ResponseEntity<ApiResult<Long>> deletePostComment(@PathVariable @Positive(message = "{common.validation.positive}") Long id) {
         this.postCommentService.deletePostComment(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResult.success(id));
     }
 }
